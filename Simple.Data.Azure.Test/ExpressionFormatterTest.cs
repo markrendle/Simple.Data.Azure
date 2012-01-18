@@ -18,6 +18,14 @@ namespace Simple.Data.Azure.Test
         }
 
         [Fact]
+        public void SingleStringEqualsFormatsAsODataFilter()
+        {
+            var expression = ObjectReference.FromString("foo.bar") == "quux";
+            var actual = new ExpressionFormatter().Format(expression);
+            Assert.Equal("bar eq 'quux'", actual);
+        }
+
+        [Fact]
         public void TwoEqualsFormatsAsODataFilter()
         {
             var expression = ObjectReference.FromString("foo.bar") == 1 && ObjectReference.FromString("foo.quux") == 2;

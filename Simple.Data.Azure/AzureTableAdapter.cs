@@ -18,11 +18,44 @@ namespace Simple.Data.Azure
             base.OnSetup();
             _helper = new AzureHelper { UrlBase = Settings.Url, SharedKey = Settings.Key, Account = Settings.Account };
         }
+
         public override IEnumerable<IDictionary<string, object>> Find(string tableName, SimpleExpression criteria)
         {
             var filter = new ExpressionFormatter().Format(criteria);
-            var table = new Table(tableName, _helper);
+            var table = GetTable(tableName);
             return table.Query(filter);
+        }
+
+        private Table GetTable(string tableName)
+        {
+            return new Table(tableName, _helper);
+        }
+
+        public override IDictionary<string, object> Get(string tableName, params object[] keyValues)
+        {
+            if (keyValues.Length < 1 || keyValues.Length > 2)
+            {
+                throw new ArgumentException("AzureTableAdapter Get method requires PartitionKey and optional RowKey values.");
+            }
+
+            if (keyValues[0] == null) throw new ArgumentNullException("PartitionKey cannot be null.");
+
+            var criteria = ObjectReference.FromStrings(tableName, "PartitionKey") == keyValues[0].ToString();
+
+            if (keyValues.Length == 2)
+            {
+                if (keyValues[1] == null) throw new ArgumentNullException("RowKey cannot be null.");
+                criteria = criteria && ObjectReference.FromStrings(tableName, "RowKey") == keyValues[1].ToString();
+            }
+
+            try
+            {
+                return Find(tableName, criteria).SingleOrDefault();
+            }
+            catch (InvalidOperationException)
+            {
+                throw new SimpleDataException("More than one row matched Get key criteria.");
+            }
         }
 
         public override IEnumerable<IDictionary<string, object>> RunQuery(SimpleQuery query, out IEnumerable<SimpleQueryClauseBase> unhandledClauses)
@@ -30,9 +63,11 @@ namespace Simple.Data.Azure
             throw new NotImplementedException();
         }
 
-        public override IDictionary<string, object> Insert(string tableName, IDictionary<string, object> data)
+        public override IDictionary<string, object> Insert(string tableName, IDictionary<string, object> data, bool resultRequired)
         {
-            throw new NotImplementedException();
+            var table = GetTable(tableName);
+            var row = table.InsertRow(data);
+            return resultRequired ? row : null;
         }
 
         public override int Update(string tableName, IDictionary<string, object> data, SimpleExpression criteria)
