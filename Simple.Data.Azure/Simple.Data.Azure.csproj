@@ -69,6 +69,7 @@
     <Compile Include="Table.cs" />
     <Compile Include="TableService.cs" />
     <Compile Include="TableServiceException.cs" />
+    <Compile Include="UpdateHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Simple.NExtLib\Simple.NExtLib.csproj">

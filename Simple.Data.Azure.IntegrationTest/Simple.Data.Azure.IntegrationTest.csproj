@@ -54,6 +54,7 @@
     <Compile Include="InsertTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestBase.cs" />
+    <Compile Include="UpdateByTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Simple.Data.Azure\Simple.Data.Azure.csproj">

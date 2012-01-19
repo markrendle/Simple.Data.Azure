@@ -3,16 +3,20 @@ namespace Simple.Data.Azure.IntegrationTest
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
 
-    public class TestBase
+    public abstract class TestBase
     {
         protected TestBase(bool reset)
         {
-            var tableClient = CloudStorageAccount.DevelopmentStorageAccount.CreateCloudTableClient();
-            tableClient.DeleteTableIfExist("SimpleTest");
-            tableClient.CreateTable("SimpleTest");
+            _tableClient = CloudStorageAccount.DevelopmentStorageAccount.CreateCloudTableClient();
+            _tableClient.DeleteTableIfExist("SimpleTest");
+            _tableClient.CreateTable("SimpleTest");
 
-            var mark = new SimpleTest {PartitionKey = "1", RowKey = string.Empty, Name = "Mark", Age = 25};
-            var context = tableClient.GetDataServiceContext();
+        }
+
+        protected void AddTestRecord(string partitionKey, string rowKey, string name, int age)
+        {
+            var mark = new SimpleTest {PartitionKey = partitionKey, RowKey = rowKey, Name = name, Age = age};
+            var context = _tableClient.GetDataServiceContext();
             context.AddObject("SimpleTest", mark);
             context.SaveChanges();
         }
@@ -25,6 +29,8 @@ namespace Simple.Data.Azure.IntegrationTest
                                          Url = "http://127.0.0.1:10002/devstoreaccount1/",
                                          Key = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
                                      });
+
+        private CloudTableClient _tableClient;
     }
 
     public class SimpleTest : TableServiceEntity

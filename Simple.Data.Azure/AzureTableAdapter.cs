@@ -72,7 +72,10 @@ namespace Simple.Data.Azure
 
         public override int Update(string tableName, IDictionary<string, object> data, SimpleExpression criteria)
         {
-            throw new NotImplementedException();
+            var table = GetTable(tableName);
+
+            return new UpdateHelper(this).Update(table, data, criteria);
+
         }
 
         public override int Update(string tableName, IDictionary<string, object> data)

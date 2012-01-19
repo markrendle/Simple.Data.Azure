@@ -29,6 +29,12 @@ namespace Simple.Data.Azure
         // ReSharper restore InconsistentNaming
 
         private readonly string _tableName;
+
+        public string TableName
+        {
+            get { return _tableName; }
+        }
+
         private readonly bool _autoCreate;
 
         public Table(string tableName, AzureHelper azureHelper) : this(tableName, IfTableDoesNotExist.ThrowAnException, azureHelper) { }
