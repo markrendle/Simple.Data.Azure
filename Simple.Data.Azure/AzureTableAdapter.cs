@@ -6,6 +6,7 @@ using System.Text;
 namespace Simple.Data.Azure
 {
     using System.ComponentModel.Composition;
+    using System.Data;
     using Helpers;
 
     [Export("Azure", typeof(Adapter))]
@@ -60,7 +61,9 @@ namespace Simple.Data.Azure
 
         public override IEnumerable<IDictionary<string, object>> RunQuery(SimpleQuery query, out IEnumerable<SimpleQueryClauseBase> unhandledClauses)
         {
-            throw new NotImplementedException();
+            unhandledClauses = query.Clauses.Where(c => !(c is WhereClause));
+            return Find(query.TableName,
+                        query.Clauses.OfType<WhereClause>().Select(w => w.Criteria).Aggregate((a, b) => a && b));
         }
 
         public override IDictionary<string, object> Insert(string tableName, IDictionary<string, object> data, bool resultRequired)
@@ -80,12 +83,28 @@ namespace Simple.Data.Azure
 
         public override int Update(string tableName, IDictionary<string, object> data)
         {
-            throw new NotImplementedException();
+            var table = GetTable(tableName);
+            table.UpdateRow(data);
+            return 1;
         }
 
         public override int Delete(string tableName, SimpleExpression criteria)
         {
-            throw new NotImplementedException();
+            var table = GetTable(tableName);
+            var keys = criteria.TryGetKeyCombo();
+            if (keys != KeyCombo.Empty && !string.IsNullOrEmpty(keys.RowKey))
+            {
+                table.Delete(keys.PartitionKey, keys.RowKey);
+                return 1;
+            }
+
+            int count = 0;
+            foreach (var row in Find(tableName, criteria))
+            {
+                table.Delete(row);
+                ++count;
+            }
+            return count;
         }
 
         public override bool IsExpressionFunction(string functionName, params object[] args)

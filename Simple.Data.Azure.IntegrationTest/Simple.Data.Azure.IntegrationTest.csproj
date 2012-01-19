@@ -49,6 +49,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeleteByTest.cs" />
     <Compile Include="FindTest.cs" />
     <Compile Include="GetTest.cs" />
     <Compile Include="InsertTest.cs" />
