@@ -33,9 +33,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Simple.Data">
-      <HintPath>..\packages\Simple.Data.Core.0.12.2.2\lib\net40\Simple.Data.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -75,6 +72,10 @@
     <Compile Include="UpdateHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Simple.Data\Simple.Data\Simple.Data.csproj">
+      <Project>{148CEE80-2E84-4ABD-B5AB-20415B2BBD21}</Project>
+      <Name>Simple.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Simple.NExtLib\Simple.NExtLib.csproj">
       <Project>{4A191FAD-DC1D-46FC-A941-7DEB2C8C4C15}</Project>
       <Name>Simple.NExtLib</Name>
@@ -87,7 +88,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Resources\DataServicesAtomEntryXml.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

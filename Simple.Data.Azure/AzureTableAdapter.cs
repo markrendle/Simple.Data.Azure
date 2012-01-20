@@ -12,6 +12,9 @@ namespace Simple.Data.Azure
     [Export("Azure", typeof(Adapter))]
     public class AzureTableAdapter : Adapter
     {
+        private const string PartitionKey = "PartitionKey";
+        private const string RowKey = "RowKey";
+
         private AzureHelper _helper;
 
         protected override void OnSetup()
@@ -41,12 +44,12 @@ namespace Simple.Data.Azure
 
             if (keyValues[0] == null) throw new ArgumentNullException("PartitionKey cannot be null.");
 
-            var criteria = ObjectReference.FromStrings(tableName, "PartitionKey") == keyValues[0].ToString();
+            var criteria = ObjectReference.FromStrings(tableName, PartitionKey) == keyValues[0].ToString();
 
             if (keyValues.Length == 2)
             {
                 if (keyValues[1] == null) throw new ArgumentNullException("RowKey cannot be null.");
-                criteria = criteria && ObjectReference.FromStrings(tableName, "RowKey") == keyValues[1].ToString();
+                criteria = criteria && ObjectReference.FromStrings(tableName, RowKey) == keyValues[1].ToString();
             }
 
             try
@@ -95,6 +98,13 @@ namespace Simple.Data.Azure
             if (keys != KeyCombo.Empty && !string.IsNullOrEmpty(keys.RowKey))
             {
                 table.Delete(keys.PartitionKey, keys.RowKey);
+                return 1;
+            }
+
+            var dict = criteria.ToDictionary();
+            if (dict != null && dict.ContainsKey(PartitionKey) && dict.ContainsKey(RowKey))
+            {
+                table.Delete(dict[PartitionKey].ToStringOrEmpty(), dict[RowKey].ToStringOrEmpty());
                 return 1;
             }
 

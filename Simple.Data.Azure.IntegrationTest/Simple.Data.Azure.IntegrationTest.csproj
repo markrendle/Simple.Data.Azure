@@ -32,9 +32,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="Simple.Data">
-      <HintPath>..\packages\Simple.Data.Core.0.12.2.2\lib\net40\Simple.Data.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Services.Client" />
@@ -50,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeleteByTest.cs" />
+    <Compile Include="DeleteTest.cs" />
     <Compile Include="FindTest.cs" />
     <Compile Include="GetTest.cs" />
     <Compile Include="InsertTest.cs" />
@@ -58,6 +56,10 @@
     <Compile Include="UpdateByTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Simple.Data\Simple.Data\Simple.Data.csproj">
+      <Project>{148CEE80-2E84-4ABD-B5AB-20415B2BBD21}</Project>
+      <Name>Simple.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Simple.Data.Azure\Simple.Data.Azure.csproj">
       <Project>{52D6C95D-7052-41B3-9003-E93DF4320221}</Project>
       <Name>Simple.Data.Azure</Name>
