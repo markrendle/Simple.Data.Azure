@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
-using System.Globalization;
-using System.Security.Cryptography;
-using System.IO;
-
-namespace Simple.Data.Azure.Helpers
+﻿namespace Simple.Azure.Helpers
 {
+    using System;
+    using System.Linq;
+    using System.Net;
+    using System.Text;
+    using System.Globalization;
+    using System.Security.Cryptography;
+    using Extensions;
+
     public class AzureHelper
     {
         private byte[] _sharedKey;

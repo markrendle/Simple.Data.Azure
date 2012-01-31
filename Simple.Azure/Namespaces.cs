@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-
-namespace Simple.Data.Azure
+﻿namespace Simple.Azure
 {
+    using System.Xml.Linq;
+
     public static class Namespaces
     {
         public static readonly XNamespace DataServices = XNamespace.Get("http://schemas.microsoft.com/ado/2007/08/dataservices");

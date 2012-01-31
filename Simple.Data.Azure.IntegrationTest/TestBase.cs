@@ -10,7 +10,6 @@ namespace Simple.Data.Azure.IntegrationTest
             _tableClient = CloudStorageAccount.DevelopmentStorageAccount.CreateCloudTableClient();
             _tableClient.DeleteTableIfExist("SimpleTest");
             _tableClient.CreateTable("SimpleTest");
-
         }
 
         protected void AddTestRecord(string partitionKey, string rowKey, string name, int age)

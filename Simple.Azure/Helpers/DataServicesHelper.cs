@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using System.Diagnostics;
-using System.IO;
-using System.Xml;
-using Simple.NExtLib;
-using Simple.NExtLib.Xml.Syndication;
-using Simple.NExtLib.IO;
-
-namespace Simple.Data.Azure.Helpers
+﻿namespace Simple.Azure.Helpers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Xml.Linq;
+    using System.IO;
+    using Simple.NExtLib;
+    using Simple.NExtLib.IO;
+
     public static class DataServicesHelper
     {
         public static IEnumerable<IDictionary<string, object>> GetData(Stream stream)

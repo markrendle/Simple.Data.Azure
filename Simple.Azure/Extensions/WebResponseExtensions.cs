@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using System.IO;
-using System.Xml;
-
-namespace System.Net
+﻿namespace Simple.Azure.Extensions
 {
+    using System.Net;
+    using System.Xml.Linq;
+    using System.IO;
+    using System.Xml;
+
     public static class WebResponseExtensions
     {
         public static XElement GetXmlContent(this WebResponse response)

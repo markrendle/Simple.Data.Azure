@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Simple.NExtLib;
-using System.Reflection;
-
-namespace Simple.Data.Azure
+﻿namespace Simple.Azure
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Simple.NExtLib;
+    using System.Reflection;
+
     public sealed class EdmType : IEquatable<EdmType>
     {
         public static readonly EdmType Binary = new EdmType("Edm.Binary");

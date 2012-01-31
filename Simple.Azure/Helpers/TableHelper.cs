@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Xml;
-using System.Xml.Linq;
-using Simple.NExtLib.IO;
-
-namespace Simple.Data.Azure.Helpers
+﻿namespace Simple.Azure.Helpers
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.IO;
+    using System.Xml.Linq;
+    using Simple.NExtLib.IO;
+
     internal static class TableHelper
     {
         /// <summary>

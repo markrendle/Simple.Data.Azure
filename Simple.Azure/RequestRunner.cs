@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Simple.Data.Azure
+﻿namespace Simple.Azure
 {
+    using System;
     using System.Net;
-    using NExtLib.IO;
+    using Simple.NExtLib.IO;
 
     public interface IRequestRunner
     {

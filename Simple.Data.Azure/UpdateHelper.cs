@@ -4,6 +4,8 @@ using System.Text;
 
 namespace Simple.Data.Azure
 {
+    using Simple.Azure;
+
     internal class UpdateHelper
     {
         private readonly AzureTableAdapter _adapter;

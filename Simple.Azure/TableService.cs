@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using Simple.Data.Azure.Helpers;
-using System.Net;
-
-namespace Simple.Data.Azure
+﻿namespace Simple.Azure
 {
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Net;
+    using System.Xml.Linq;
+    using Helpers;
+
     public class TableService
     {
         private readonly AzureHelper _azureHelper;

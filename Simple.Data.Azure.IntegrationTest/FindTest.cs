@@ -10,6 +10,7 @@ namespace Simple.Data.Azure.IntegrationTest
     {
         public FindTest() : base(true)
         {
+            AddTestRecord("1", string.Empty, "Mark", 25);
         }
 
         [Fact]

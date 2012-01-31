@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net;
-using System.Web;
-using System.Xml.Linq;
-using System.Diagnostics;
-using Simple.Data.Azure.Helpers;
-using Simple.NExtLib.Xml;
-using Simple.NExtLib.IO;
-using System.Net.Cache;
-
-namespace Simple.Data.Azure
+﻿namespace Simple.Azure
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Linq;
+    using System.Net;
+    using System.Web;
+    using System.Xml.Linq;
+    using System.Diagnostics;
+    using Helpers;
+
     /// <summary>
     /// Represents an Azure table and provides CRUD operations against it.
     /// </summary>

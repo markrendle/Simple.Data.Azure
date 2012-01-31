@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Globalization;
-using System.Xml.Linq;
-using Simple.NExtLib;
-using System.Diagnostics;
-
-namespace Simple.Data.Azure.Helpers
+﻿namespace Simple.Azure.Helpers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Xml.Linq;
+    using Simple.NExtLib;
+    using System.Diagnostics;
+
     public static class EdmHelper
     {
         private static readonly Dictionary<EdmType, Func<string, object>> Readers = new Dictionary<EdmType, Func<string, object>>

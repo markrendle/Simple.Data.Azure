@@ -7,7 +7,8 @@ namespace Simple.Data.Azure
 {
     using System.ComponentModel.Composition;
     using System.Data;
-    using Helpers;
+    using Simple.Azure;
+    using Simple.Azure.Helpers;
 
     [Export("Azure", typeof(Adapter))]
     public class AzureTableAdapter : Adapter

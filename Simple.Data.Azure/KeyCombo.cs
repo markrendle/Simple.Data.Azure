@@ -7,7 +7,7 @@ namespace Simple.Data.Azure
     {
         private readonly string _partitionKey;
         private readonly string _rowKey;
-        private static KeyCombo _empty;
+        private static KeyCombo _empty = default(KeyCombo);
 
         public static KeyCombo Empty
         {
