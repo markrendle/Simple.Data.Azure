@@ -43,9 +43,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Async\AsyncException.cs" />
-    <Compile Include="Async\Future.cs" />
-    <Compile Include="Async\Future`1.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="Func.cs" />
     <Compile Include="IO\QuickIO.cs" />

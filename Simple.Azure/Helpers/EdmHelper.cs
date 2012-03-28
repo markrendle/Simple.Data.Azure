@@ -115,7 +115,7 @@
         {
             if (((DateTime)source).Kind != DateTimeKind.Utc)
             {
-                Trace.WriteLine("Non-UTC DateTime specified to EdmHelper", "Simple.Data.Azure.Warnings");
+                Debug.WriteLine("Non-UTC DateTime specified to EdmHelper", "Simple.Data.Azure.Warnings");
             }
 
             return ((DateTime)source).ToIso8601String();

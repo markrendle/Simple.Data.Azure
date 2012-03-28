@@ -52,7 +52,7 @@
 
         private static XElement CreateEmptyEntryWithNamespaces()
         {
-            var entry = XElement.Parse(Properties.Resources.DataServicesAtomEntryXml);
+            var entry = XElement.Parse(Atom.DataServicesAtomEntryXml);
             entry.Element(null, "updated").SetValue(DateTime.UtcNow.ToIso8601String());
             return entry;
         }

@@ -2,10 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.Linq;
     using System.Net;
-    using System.Web;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using System.Diagnostics;
     using Helpers;
@@ -43,6 +42,7 @@
             _autoCreate = doesNotExistAction == IfTableDoesNotExist.CreateIt;
         }
 
+#if(!SILVERLIGHT)
         public IEnumerable<IDictionary<string, object>> GetAllRows()
         {
             return Get(_tableName);
@@ -68,9 +68,8 @@
         // TODO: Implement querying using LINQ, IQueryable<IDictionary<string, object>>
         public IEnumerable<IDictionary<string, object>> Query(string filter)
         {
-            return Get(_tableName + "?$filter=" + HttpUtility.UrlEncode(filter));
+            return Get(_tableName + "?$filter=" + Uri.EscapeDataString(filter));
         }
-
         public IDictionary<string, object> InsertRow(IDictionary<string, object> row)
         {
             ThrowIfMissing(row, "PartitionKey", "RowKey");
@@ -105,6 +104,8 @@
 
             return DataServicesHelper.GetData(text).First();
         }
+        
+        
 
         public void UpdateRow(IDictionary<string, object> row)
         {
@@ -126,6 +127,7 @@
 
             WriteRowDataRequest(row, command, MERGE);
         }
+#endif
 
         public static IDictionary<string, object> NewRow(string partitionKey, string rowKey)
         {
@@ -147,7 +149,7 @@
             if (value.Contains("#")) throw new ArgumentException("Key values may not contain the hash/pound symbol", keyName);
             if (value.Contains("?")) throw new ArgumentException("Key values may not contain question marks", keyName);
         }
-
+#if(!SILVERLIGHT)
         private IEnumerable<IDictionary<string, object>> Get(string url)
         {
             IEnumerable<IDictionary<string, object>> result;
@@ -169,7 +171,6 @@
 
             return result;
         }
-
         private void Delete(string url)
         {
             var request = _azureHelper.CreateTableRequest(url, DELETE);
@@ -190,6 +191,7 @@
                 // No action, just disposing the response
             }
         }
+#endif
 
         private static void ThrowIfMissing(IDictionary<string, object> row, params string[] keys)
         {
@@ -197,7 +199,7 @@
             {
                 if ((!row.ContainsKey(key)) || row[key] == null)
                 {
-                    throw new DataException("No or null " + key + "specified.");
+                    throw new TableServiceException("No or null " + key + "specified.");
                 }
             }
         }
@@ -205,6 +207,59 @@
         private static string BuildEntityUri(string tableName, string partitionKey, string rowKey)
         {
             return string.Format(@"{0}(PartitionKey='{1}',RowKey='{2}')", tableName, partitionKey, rowKey);
+        }
+
+        public Task<IEnumerable<IDictionary<string, object>>> GetAllRowsAsync()
+        {
+            var request = _azureHelper.CreateTableRequest(_tableName, GET);
+
+            return new AsyncRequestRunner().TryRequest(request)
+                .ContinueWith(t =>
+                                  {
+                                      Debug.WriteLine(t.Result.StatusCode);
+
+                                      if (t.Result.StatusCode != HttpStatusCode.OK)
+                                      {
+                                          return Enumerable.Empty<IDictionary<string, object>>();
+                                      }
+                                      return DataServicesHelper.GetData(t.Result.GetResponseStream());
+                                  });
+        }
+
+        public Task<IDictionary<string, object>> InsertRowAsync(IDictionary<string, object> row)
+        {
+            ThrowIfMissing(row, "PartitionKey", "RowKey");
+
+            var entry = DataServicesHelper.CreateDataElement(row);
+            var request = _azureHelper.CreateTableRequest(_tableName, POST, entry.ToString());
+
+            Task<string> text = null;
+
+            if (_autoCreate)
+            {
+                try
+                {
+                    text = new AsyncRequestRunner().Request(request);
+                }
+                catch (TableServiceException ex)
+                {
+                    if (ex.Code == "TableNotFound")
+                    {
+                        Debug.WriteLine("Auto-creating table");
+                        new TableService(_azureHelper).CreateTable(_tableName);
+                        request = _azureHelper.CreateTableRequest(_tableName, POST, entry.ToString());
+
+                        text = new AsyncRequestRunner().Request(request);
+                    }
+                }
+            }
+            else
+            {
+                text = new AsyncRequestRunner().Request(request);
+            }
+
+            if (text == null) return new Task<IDictionary<string, object>>(() => null);
+            return text.ContinueWith(t => DataServicesHelper.GetData(t.Result).First());
         }
     }
 }

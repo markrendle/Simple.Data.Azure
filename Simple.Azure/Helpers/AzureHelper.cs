@@ -7,6 +7,9 @@
     using System.Globalization;
     using System.Security.Cryptography;
     using Extensions;
+#if(SILVERLIGHT)
+    using SimpleAg.NExtLib;
+#endif
 
     public class AzureHelper
     {
@@ -32,11 +35,11 @@
             var request = WebRequest.Create(uri);
             request.Method = method;
             request.ContentLength = (content ?? string.Empty).Length;
-            request.Headers.Add("x-ms-date", DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture));
+            request.Headers["x-ms-date"] = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
 
             if (method == "PUT" || method == "DELETE" || method == "MERGE")
             {
-                request.Headers.Add("If-Match", "*");
+                request.Headers["If-Match"] = "*";
             }
 
             SignAndAuthorize(request);
@@ -51,17 +54,21 @@
 
         private static void AddContent(string content, WebRequest request)
         {
-            request.Headers.Add("Content-MD5", HashMD5(content));
+            request.Headers["Content-MD5"] = HashMD5(content);
             request.ContentType = "application/atom+xml";
+#if(SILVERLIGHT)
+            request.SetContentAsync(content);
+#else
             request.SetContent(content);
+#endif
         }
 
         private void SignAndAuthorize(WebRequest request)
         {
-            var resource = request.RequestUri.PathAndQuery;
+            var resource = request.RequestUri.GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
             if (resource.Contains("?"))
             {
-                resource = resource.Substring(0, resource.IndexOf("?"));
+                resource = resource.Substring(0, resource.IndexOf("?", StringComparison.Ordinal));
             }
 
             string stringToSign = GetStringToSign(request, resource);
@@ -72,7 +79,7 @@
 
             string authorizationHeader = string.Format("SharedKeyLite {0}:{1}", Account, signedSignature);
 
-            request.Headers.Add("Authorization", authorizationHeader);
+            request.Headers["Authorization"] = authorizationHeader;
         }
 
         public static string HashMD5(string source)

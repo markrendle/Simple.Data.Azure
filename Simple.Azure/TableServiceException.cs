@@ -3,9 +3,11 @@
     using System;
     using System.Net;
     using System.Runtime.Serialization;
-    using Simple.NExtLib.Xml;
+    using NExtLib.Xml;
 
+#if(!SILVERLIGHT)
     [Serializable]
+#endif
     public class TableServiceException : Exception
     {
         private readonly string _code;
@@ -44,12 +46,13 @@
         {
 
         }
-
+#if(!SILVERLIGHT)
         protected TableServiceException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)
         {
         }
+#endif
 
         public string Code
         {

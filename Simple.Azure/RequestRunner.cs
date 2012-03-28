@@ -2,15 +2,10 @@
 {
     using System;
     using System.Net;
+    using System.Threading.Tasks;
     using Simple.NExtLib.IO;
 
-    public interface IRequestRunner
-    {
-        string Request(HttpWebRequest request);
-        HttpWebResponse TryRequest(HttpWebRequest request);
-    }
-
-    public class RequestRunner : IRequestRunner
+    public class RequestRunner
     {
         public string Request(HttpWebRequest request)
         {
