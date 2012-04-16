@@ -11,6 +11,7 @@
         public string Name { get; set; }
         public string Url { get; set; }
         public IDictionary<string,string> Metadata { get; set; }
+        public ContainerProperties Properties { get; set; }
     }
 
     public class BlobListItem

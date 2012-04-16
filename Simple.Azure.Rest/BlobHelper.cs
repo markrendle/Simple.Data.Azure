@@ -71,22 +71,22 @@
         //// Get container properties.
         //// Return true on success, false if not found, throw exception on error.
 
-        public Task<BlobContainerProperties> GetContainerProperties(string container)
+        public Task<ContainerProperties> GetContainerProperties(string container)
         {
             return TaskExtensions.Retry(
                 () => CreateRESTRequest("HEAD", container + "?restype=container")
                           .ContinueWithResponse()
                           .ContinueWith(ParseBlobContainerProperties,
-                                        HandleError(409).WithDefault<BlobContainerProperties>()));
+                                        HandleError(409).WithDefault<ContainerProperties>()));
         }
 
-        private static BlobContainerProperties ParseBlobContainerProperties(HttpWebResponse response)
+        private static ContainerProperties ParseBlobContainerProperties(HttpWebResponse response)
         {
             response.Close();
             var headers = response.Headers;
             if (headers != null)
             {
-                return new BlobContainerProperties
+                return new ContainerProperties
                            {
                                ETag = headers["ETag"],
                                LastModified = DateTime.Parse(headers["Last-Modified"])
@@ -160,7 +160,7 @@
 
         public Task<IEnumerable<BlobListItem>> ListBlobs(string container)
         {
-            var parser = new BlobListParser(string.Empty);
+            var parser = new BlobListParser(container, string.Empty);
             return TaskExtensions.Retry(() =>
                                         CreateRESTRequest("GET",
                                                           container +
@@ -172,7 +172,7 @@
 
         public Task<IEnumerable<BlobListItem>> ListBlobs(string container, string prefix)
         {
-            var parser = new BlobListParser(prefix);
+            var parser = new BlobListParser(container, prefix);
 
             return TaskExtensions.Retry(() =>
                                         CreateRESTRequest("GET",
@@ -261,10 +261,12 @@
 
         private class BlobListParser
         {
+            private readonly string _container;
             private readonly string _prefix;
 
-            public BlobListParser(string prefix)
+            public BlobListParser(string container, string prefix)
             {
+                _container = container;
                 _prefix = prefix;
             }
 
@@ -285,10 +287,10 @@
 
                 var names = blobs.Elements("Blob").Select(x => regex.Replace(x.Element("Name").MaybeValue(), string.Empty)).ToList();
                 var folders = names
-                    .Where(n => n.Split('/').Length == 2)
+                    .Where(n => n.Split('/').Length >= 2)
                     .Select(n => n.Split('/')[0])
                     .Distinct()
-                    .Select(n => new BlobListItem {Name = n, ContentType = "application/folder", FullPath = _prefix + n});
+                    .Select(n => new BlobListItem {Name = n, ContentType = "application/folder", FullPath = _container + '/' + _prefix + n});
 
                 var files = blobs
                     .Elements("Blob")
@@ -1225,12 +1227,6 @@
             //    });
             //}
 
-    }
-
-    public class BlobContainerProperties
-    {
-        public string ETag { get; set; }
-        public DateTime LastModified { get; set; }
     }
 
     public class SortedList<TKey, TValue> : IDictionary<TKey, TValue>

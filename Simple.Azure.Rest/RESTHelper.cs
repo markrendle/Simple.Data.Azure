@@ -35,7 +35,7 @@
         {
             byte[] byteArray = null;
             DateTime now = DateTime.UtcNow;
-            string uri = Endpoint + resource;
+            string uri = Endpoint.TrimEnd('/') + '/' + resource.TrimStart('/');
 
 
             var request = (HttpWebRequest)WebRequestCreator.Create(new Uri(uri));
