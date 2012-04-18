@@ -29,11 +29,10 @@
 
         // Construct and issue a REST request and return the response.
 
-        public Task<HttpWebRequest> CreateRESTRequest(string method, string resource, string requestBody = null,
+        public Task<HttpWebRequest> CreateRESTRequest(string method, string resource, Stream requestBody = null,
                                                       IDictionary<string, string> headers = null,
                                                       string ifMatch = "", string md5 = "")
         {
-            byte[] byteArray = null;
             DateTime now = DateTime.UtcNow;
             string uri = Endpoint.TrimEnd('/') + '/' + resource.TrimStart('/');
 
@@ -56,27 +55,39 @@
             {
                 foreach (var header in headers.OrderBy(kvp => kvp.Key))
                 {
-                    request.Headers[header.Key] = header.Value;
+                    if (header.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase))
+                    {
+                        request.ContentType = header.Value;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            request.Headers[header.Key] = header.Value;
+                        }
+                        catch (ArgumentException)
+                        {
+                            throw;
+                        }
+                    }
                 }
             }
 
-            if (!String.IsNullOrEmpty(requestBody))
+            if (requestBody != null)
             {
                 request.Headers["Accept-Charset"] = "UTF-8";
-
-                byteArray = Encoding.UTF8.GetBytes(requestBody);
-                request.ContentLength = byteArray.Length;
+                request.ContentLength = requestBody.Length;
             }
 
             request.Headers["Authorization"] = AuthorizationHeader(method, now, request.Headers, request.RequestUri,
                                                                    request.ContentLength, ifMatch, md5);
 
-            if (byteArray != null)
+            if (requestBody != null)
             {
                 return Task.Factory.FromAsync<Stream>(request.BeginGetRequestStream, request.EndGetRequestStream, null)
                     .ContinueWith(t =>
                     {
-                        t.Result.Write(byteArray, 0, byteArray.Length);
+                        requestBody.CopyTo(t.Result);
                         t.Result.Close();
                         return request;
                     });

@@ -103,7 +103,7 @@
             var metadataList = new SortedList<string, string>();
             return TaskExtensions.Retry(
                 () =>
-                CreateRESTRequest("HEAD", container + "?restype=container&comp=metadata", string.Empty, metadataList)
+                CreateRESTRequest("HEAD", container + "?restype=container&comp=metadata", null, metadataList)
                     .ContinueWithResponse()
                     .ContinueWith(response => ParseMetadataList(metadataList, response),
                                   HandleError(404).WithDefault<SortedList<string, string>>()));
@@ -148,7 +148,7 @@
             }
 
             return TaskExtensions.Retry(
-                () => CreateRESTRequest("PUT", container + "?restype=container&comp=metadata", string.Empty,
+                () => CreateRESTRequest("PUT", container + "?restype=container&comp=metadata", null,
                                         headers)
                           .ContinueWithResponse()
                           .ContinueWith(CloseAndReturnTrue, HandleError(404).With(() => false)));
@@ -214,12 +214,25 @@
                 );
         }
 
+        public Task<bool> PutBlob(string container, string blob, Stream content, string contentType = "application/octet-stream")
+        {
+            var headers = new SortedList<string, string> {{"x-ms-blob-type", "BlockBlob"}, {"Content-Type", contentType}};
+            return TaskExtensions.Retry(() =>
+                                                CreateRESTRequest("PUT", container + "/" + blob, content, headers)
+                                                    .ContinueWithResponse()
+                                                    .ContinueWith(t =>
+                                                                      {
+                                                                          return true;
+                                                                      }, HandleError(409).With(() => false)));
+        }
+
         private Blob ReadBlob(HttpWebResponse response)
         {
             if (response.ContentLength <= 0) return null;
 
             var memoryStream = new MemoryStream((int)response.ContentLength);
-            response.GetResponseStream().CopyTo(memoryStream);
+            var responseStream = response.GetResponseStream();
+            if (responseStream != null) responseStream.CopyTo(memoryStream);
             return new Blob {ContentType = response.ContentType, Stream = memoryStream};
         }
 
@@ -286,25 +299,61 @@
                 if (blobs == null) return Enumerable.Empty<BlobListItem>();
 
                 var names = blobs.Elements("Blob").Select(x => regex.Replace(x.Element("Name").MaybeValue(), string.Empty)).ToList();
-                var folders = names
-                    .Where(n => n.Split('/').Length >= 2)
-                    .Select(n => n.Split('/')[0])
-                    .Distinct()
-                    .Select(n => new BlobListItem {Name = n, ContentType = "application/folder", FullPath = _container + '/' + _prefix + n});
+                var folders = ParseFolders(names);
 
                 var files = blobs
                     .Elements("Blob")
                     .Where(x => !regex.Replace(x.Element("Name").MaybeValue(), string.Empty).Contains("/"))
-                    .Select(
-                        x =>
-                        new BlobListItem
-                            {
-                                Name = regex.Replace(x.Element("Name").MaybeValue(), string.Empty),
-                                ContentType = x.Element("Properties").MaybeElement("Content-Type").MaybeValue(),
-                                FullPath = x.Element("Url").MaybeValue()
-                            });
+                    .Select(x => ParseBlobListItem(x, regex));
 
                 return folders.Concat(files).ToList();
+            }
+
+            private static BlobListItem ParseBlobListItem(XElement x, Regex regex)
+            {
+                var item = new BlobListItem
+                           {
+                               Name = regex.Replace(x.Element("Name").MaybeValue(), string.Empty),
+                               FullPath = x.Element("Url").MaybeValue()
+                           };
+
+                var properties = x.Element("Properties");
+                if (properties != null)
+                {
+                    item.ContentType = properties.Element("Content-Type").MaybeValue();
+                    item.Type = properties.Element("BlobType").MaybeValue().Replace("Blob", "");
+                    item.LeaseStatus = properties.Element("LeaseStatus").MaybeValue();
+                    item.Etag = properties.Element("Etag").MaybeValue();
+                    var lastModified = properties.Element("Last-Modified").MaybeValue();
+                    DateTime lastModifiedDate;
+                    if (DateTime.TryParse(lastModified, out lastModifiedDate))
+                    {
+                        item.LastModified = lastModifiedDate.ToString("yyyy-MM-dd hh:mm");
+                    }
+                    else
+                    {
+                        item.LastModified = lastModified;
+                    }
+                    var size = properties.Element("Content-Length").MaybeValue();
+                    if (!string.IsNullOrWhiteSpace(size))
+                    {
+                        item.Size = long.Parse(size);
+                    }
+                }
+
+                return item;
+            }
+
+            private IEnumerable<BlobListItem> ParseFolders(IEnumerable<string> names)
+            {
+                var folders = names
+                    .Where(n => n.Split('/').Length >= 2)
+                    .Select(n => n.Split('/')[0])
+                    .Distinct()
+                    .Select(
+                        n =>
+                        new BlobListItem {Name = n, ContentType = "application/folder", FullPath = _container + '/' + _prefix + n, Type = "Folder"});
+                return folders;
             }
         }
 
@@ -550,32 +599,7 @@
             //// Create or update a blob. 
             //// Return true on success, false if not found, throw exception on error.
 
-            //public bool PutBlob(string container, string blob, string content)
-            //{
-            //    return Retry<bool>(delegate()
-            //    {
-            //        HttpWebResponse response;
-
-            //        try
-            //        {
-            //            SortedList<string, string> headers = new SortedList<string, string>();
-            //            headers.Add("x-ms-blob-type", "BlockBlob");
-
-            //            response = CreateRESTRequest("PUT", container + "/" + blob, content, headers).GetResponse() as HttpWebResponse;
-            //            response.Close();
-            //            return true;
-            //        }
-            //        catch (WebException ex)
-            //        {
-            //            if (ex.Status == WebExceptionStatus.ProtocolError &&
-            //                ex.Response != null &&
-            //                (int)(ex.Response as HttpWebResponse).StatusCode == 409)
-            //                return false;
-
-            //            throw;
-            //        }
-            //    });
-            //}
+            
 
 
             //// Create or update a page blob. 

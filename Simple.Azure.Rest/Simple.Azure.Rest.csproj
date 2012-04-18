@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blob.cs" />
+    <Compile Include="BlobListItem.cs" />
     <Compile Include="ContainerProperties.cs" />
     <Compile Include="BlobHelper.cs" />
     <Compile Include="Container.cs" />

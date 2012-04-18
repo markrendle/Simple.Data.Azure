@@ -24,10 +24,26 @@ namespace Simple.Data.Azure
             _helper = new AzureHelper { UrlBase = Settings.Url, SharedKey = Settings.Key, Account = Settings.Account };
         }
 
+        public override IDictionary<string, object> GetKey(string tableName, IDictionary<string, object> record)
+        {
+            return new Dictionary<string, object>
+                       {
+                           { "PartitionKey", record["PartitionKey"]},
+                           { "RowKey", record["RowKey"]}
+                       };
+        }
+
+        public override IList<string> GetKeyNames(string tableName)
+        {
+            return new[] {"PartitionKey", "RowKey"};
+        }
+
         public override IEnumerable<IDictionary<string, object>> Find(string tableName, SimpleExpression criteria)
         {
-            var filter = new ExpressionFormatter().Format(criteria);
             var table = GetTable(tableName);
+            if (ReferenceEquals(criteria, null)) return table.GetAllRows();
+
+            var filter = new ExpressionFormatter().Format(criteria);
             return table.Query(filter);
         }
 
@@ -66,8 +82,13 @@ namespace Simple.Data.Azure
         public override IEnumerable<IDictionary<string, object>> RunQuery(SimpleQuery query, out IEnumerable<SimpleQueryClauseBase> unhandledClauses)
         {
             unhandledClauses = query.Clauses.Where(c => !(c is WhereClause));
+            var whereClauses = query.Clauses.OfType<WhereClause>().ToList();
+            if (whereClauses.Count == 0)
+            {
+                return Find(query.TableName, null);
+            }
             return Find(query.TableName,
-                        query.Clauses.OfType<WhereClause>().Select(w => w.Criteria).Aggregate((a, b) => a && b));
+                        query.Clauses.OfType<WhereClause>().DefaultIfEmpty().Select(w => w.Criteria).Aggregate((a, b) => a && b));
         }
 
         public override IDictionary<string, object> Insert(string tableName, IDictionary<string, object> data, bool resultRequired)
@@ -85,12 +106,12 @@ namespace Simple.Data.Azure
 
         }
 
-        public override int Update(string tableName, IDictionary<string, object> data)
-        {
-            var table = GetTable(tableName);
-            table.UpdateRow(data);
-            return 1;
-        }
+        //public override int Update(string tableName, IDictionary<string, object> data)
+        //{
+        //    var table = GetTable(tableName);
+        //    table.UpdateRow(data);
+        //    return 1;
+        //}
 
         public override int Delete(string tableName, SimpleExpression criteria)
         {
