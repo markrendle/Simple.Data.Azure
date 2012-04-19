@@ -13,5 +13,6 @@
         public string Url { get; set; }
         public IDictionary<string,string> Metadata { get; set; }
         public ContainerProperties Properties { get; set; }
+        public string Access { get; set; }
     }
 }

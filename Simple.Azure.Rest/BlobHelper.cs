@@ -220,10 +220,37 @@
             return TaskExtensions.Retry(() =>
                                                 CreateRESTRequest("PUT", container + "/" + blob, content, headers)
                                                     .ContinueWithResponse()
-                                                    .ContinueWith(t =>
-                                                                      {
-                                                                          return true;
-                                                                      }, HandleError(409).With(() => false)));
+                                                    .ContinueWith(t => true, HandleError(409).With(() => false)));
+        }
+
+        public Task<string> GetContainerACL(string container)
+        {
+            return TaskExtensions.Retry(() =>
+                    CreateRESTRequest("GET", container + "?restype=container&comp=acl")
+                        .ContinueWithResponse()
+                        .ContinueWith(GetAccessLevelString, HandleError(404).WithDefault<string>(), TaskContinuationOptions.ExecuteSynchronously));
+        }
+
+        private string GetAccessLevelString(HttpWebResponse response)
+        {
+            if (response.Headers != null)
+            {
+                string access = response.Headers["x-ms-blob-public-access"];
+                if (access != null)
+                {
+                    switch (access)
+                    {
+                        case "container":
+                        case "blob":
+                            return access;
+                        case "true":
+                            return "container";
+                        default:
+                            return "private";
+                    }
+                }
+            }
+            return "private";
         }
 
         private Blob ReadBlob(HttpWebResponse response)

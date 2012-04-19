@@ -36,6 +36,25 @@ namespace Simple.Azure.Rest
                                          });
         }
 
+        public static Task<TResult> ContinueWith<T, TResult>(this Task<T> task, Func<T, TResult> func, WebExceptionHandler<TResult> exceptionHandler, TaskContinuationOptions options)
+        {
+            return task.ContinueWith(t =>
+                                         {
+                                             if (t.IsFaulted)
+                                             {
+                                                 if (t.Exception == null) throw new ApplicationException();
+                                                 if (exceptionHandler == null)
+                                                 {
+                                                     throw t.Exception.InnerException;
+                                                 }
+                                                 return exceptionHandler.Handle(t.Exception);
+                                             }
+
+                                             var result = func(t.Result);
+                                             return result;
+                                         }, options);
+        }
+
 
         public static T Catch<TException, T>(this AggregateException aggregate, Func<TException, T> handler)
             where TException : Exception
