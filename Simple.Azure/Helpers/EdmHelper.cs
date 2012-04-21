@@ -78,7 +78,7 @@
 
         public static object ReadEdmDateTime(string source)
         {
-            return DateTime.Parse(source);
+            return DateTime.Parse(source).ToUniversalTime();
         }
 
         public static object ReadEdmDouble(string source)
