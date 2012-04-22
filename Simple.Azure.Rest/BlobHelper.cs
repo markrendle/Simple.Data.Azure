@@ -231,6 +231,15 @@
                         .ContinueWith(GetAccessLevelString, HandleError(404).WithDefault<string>(), TaskContinuationOptions.ExecuteSynchronously));
         }
 
+        public Task<bool> CopyBlob(string sourceBlob, string destBlob)
+        {
+            var headers = new SortedList<string, string>
+                              {{"x-ms-copy-source", "/" + StorageAccount + "/" + sourceBlob}};
+            return TaskExtensions.Retry(() => CreateRESTRequest("PUT", destBlob, null, headers)
+                                                  .ContinueWithResponse()
+                                                  .ContinueWith(t => !t.IsFaulted));
+        }
+
         private string GetAccessLevelString(HttpWebResponse response)
         {
             if (response.Headers != null)
