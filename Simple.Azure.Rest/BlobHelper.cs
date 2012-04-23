@@ -240,6 +240,20 @@
                                                   .ContinueWith(t => !t.IsFaulted));
         }
 
+        public Task<bool> DeleteBlob(string container, string blob)
+        {
+            return TaskExtensions.Retry(() => CreateRESTRequest("DELETE", container + '/' + blob)
+                                                  .ContinueWithResponse()
+                                                  .ContinueWith(t => !t.IsFaulted));
+        }
+
+        public Task<bool> DeleteBlob(string blob)
+        {
+            return TaskExtensions.Retry(() => CreateRESTRequest("DELETE", blob)
+                                                  .ContinueWithResponse()
+                                                  .ContinueWith(t => !t.IsFaulted));
+        }
+
         private string GetAccessLevelString(HttpWebResponse response)
         {
             if (response.Headers != null)
