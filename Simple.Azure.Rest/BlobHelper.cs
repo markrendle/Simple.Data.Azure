@@ -6,6 +6,7 @@
     using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Net.Http;
     using System.Text.RegularExpressions;
     using System.Xml.Linq;
     using System.Threading.Tasks;
@@ -13,30 +14,71 @@
     public class BlobHelper : RESTHelper
     {
         // Constructor.
-
         public BlobHelper(string storageAccount, string storageKey)
-            : base("http://" + storageAccount + ".blob.core.windows.net/", storageAccount, storageKey)
+            : base(MakeBaseUrl(storageAccount), storageAccount, storageKey)
         {
         }
 
         public BlobHelper()
-            : base(
-                "http://127.0.0.1:10000/devstoreaccount1/", "devstoreaccount1",
+            : base(MakeBaseUrl("devstoreaccount1"), "devstoreaccount1",
                 "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==")
         {
+        }
+
+        private static string MakeBaseUrl(string storageAccountName)
+        {
+            return storageAccountName.Equals("devstoreaccount1", StringComparison.OrdinalIgnoreCase)
+                       ? "http://127.0.0.1:10000/devstoreaccount1/"
+                       : "http://" + storageAccountName + ".blob.core.windows.net/";
         }
 
         // List containers.
         // Return true on success, false if not found, throw exception on error.
 
-        public Task<IEnumerable<Container>> ListContainers()
+        public async Task<IEnumerable<Container>> ListContainers()
         {
-            return TaskExtensions.Retry(
-                () => CreateRESTRequest("GET", "?restype=container&comp=list")
-                          .ContinueWithResponse()
-                          .ContinueWith(ParseContainers, HandleError(404).With(() => default(IEnumerable<Container>))));
+            try
+            {
+                var request = await CreateRESTRequest("GET", "?restype=container&comp=list");
+                var response = await Task.Factory.FromAsync(request.BeginGetResponse, ar => (HttpWebResponse)request.EndGetResponse(ar), null);
+                return ParseContainers(response);
+            }
+            catch (WebException ex)
+            {
+                return Enumerable.Empty<Container>();
+            }
+        }
+        
+        public async Task<IEnumerable<Container>> ListContainers2()
+        {
+            try
+            {
+                var request = CreateRequest(HttpMethod.Get, "?restype=container&comp=list");
+                var client = new HttpClient();
+                var response = await client.SendAsync(request);
+
+                return ParseContainers(await response.Content.ReadAsStreamAsync());
+            }
+            catch (WebException ex)
+            {
+                return Enumerable.Empty<Container>();
+            }
         }
 
+        private static IEnumerable<Container> ParseContainers(Stream stream)
+        {
+            string result;
+            using (var reader = new StreamReader(stream))
+            {
+                result = reader.ReadToEnd();
+            }
+            return XElement.Parse(result)
+                .Element("Containers")
+                .MaybeElements("Container")
+                .Select(x => new Container {Name = x.Element("Name").MaybeValue(), Url = x.Element("URL").MaybeValue()})
+                .ToList();
+        }
+        
         private static IEnumerable<Container> ParseContainers(HttpWebResponse response)
         {
             string result;
