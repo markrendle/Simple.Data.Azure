@@ -22,6 +22,18 @@
             return feed.Descendants(null, "content").Select(content => GetData(content).ToIDictionary());
         }
 
+        internal static IEnumerable<Entity> GetEntities(Stream stream)
+        {
+            return GetEntities(QuickIO.StreamToString(stream));
+        }
+
+        internal static IEnumerable<Entity> GetEntities(string text)
+        {
+            var feed = XElement.Parse(text);
+
+            return feed.Descendants(null, "content").Select(content => GetValues(content).ToEntity());
+        }
+
         public static IEnumerable<KeyValuePair<string, object>> GetData(XElement element)
         {
             if (element == null) throw new ArgumentNullException("element");
@@ -33,6 +45,20 @@
             foreach (var property in properties.Elements())
             {
                 yield return EdmHelper.Read(property);
+            }
+        }
+
+        internal static IEnumerable<EntityValue> GetValues(XElement element)
+        {
+            if (element == null) throw new ArgumentNullException("element");
+
+            var properties = element.Element("m", "properties");
+
+            if (properties == null) yield break;
+
+            foreach (var property in properties.Elements())
+            {
+                yield return EdmHelper.ReadValue(property);
             }
         }
 

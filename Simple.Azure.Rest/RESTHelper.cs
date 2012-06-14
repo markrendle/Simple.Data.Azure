@@ -77,7 +77,7 @@
             return tcs.Task;
         }
 
-        public System.Net.Http.HttpRequestMessage CreateRequest(HttpMethod method, string resource, Stream requestBody = null,
+        public HttpRequestMessage CreateRequest(HttpMethod method, string resource,
                                                       IDictionary<string, string> headers = null,
                                                       string ifMatch = "", string md5 = "")
         {
@@ -85,42 +85,50 @@
             string uri = Endpoint.TrimEnd('/') + '/' + resource.TrimStart('/');
 
 
-            var request = new System.Net.Http.HttpRequestMessage(method, uri);
+            var request = new HttpRequestMessage(method, uri);
             request.Headers.AddWithoutValidation("x-ms-date", now.ToString("R", CultureInfo.InvariantCulture));
             request.Headers.AddWithoutValidation("x-ms-version", "2009-09-19");
 
-            SetTableStorageValues(request);
+            //SetTableStorageValues(request);
 
             if (headers != null)
             {
                 AddHeaders(headers, request);
             }
 
-            //if (requestBody != null)
-            //{
-            //    request.Headers["Accept-Charset"] = "UTF-8";
-            //    request.ContentLength = requestBody.Length;
-            //}
+            request.Headers.Add("Authorization", AuthorizationHeader(method.Method, now, request.Headers, request.RequestUri,
+                                                                   0, ifMatch, md5));
+
+            return request;
+        }
+
+        public HttpRequestMessage CreateRequestWithBody(HttpMethod method, string resource, Stream requestBody,
+                                                      IDictionary<string, string> headers = null,
+                                                      string ifMatch = "", string md5 = "")
+        {
+            if (requestBody == null) throw new ArgumentNullException("requestBody");
+            DateTime now = DateTime.UtcNow;
+            string uri = Endpoint.TrimEnd('/') + '/' + resource.TrimStart('/');
+
+
+            var request = new HttpRequestMessage(method, uri);
+            request.Headers.AddWithoutValidation("x-ms-date", now.ToString("R", CultureInfo.InvariantCulture));
+            request.Headers.AddWithoutValidation("x-ms-version", "2009-09-19");
+
+            SetTableStorageValues(request, requestBody);
+
+            if (headers != null)
+            {
+                AddHeaders(headers, request);
+            }
+
+            request.Headers.AddWithoutValidation("Accept-Charset", "UTF-8");
+            request.Content.Headers.ContentLength = requestBody.Length;
 
             request.Headers.Add("Authorization", AuthorizationHeader(method.Method, now, request.Headers, request.RequestUri,
                                                                    0, ifMatch, md5));
 
-            //if (requestBody != null)
-            //{
-            //    return Task.Factory.FromAsync<Stream>(request.BeginGetRequestStream, request.EndGetRequestStream, null)
-            //        .ContinueWith(t =>
-            //        {
-            //            requestBody.CopyTo(t.Result);
-            //            t.Result.Close();
-            //            return request;
-            //        });
-            //}
-
             return request;
-
-            //var tcs = new TaskCompletionSource<HttpWebRequest>();
-            //tcs.SetResult(request);
-            //return tcs.Task;
         }
 
         private void SetTableStorageValues(HttpWebRequest request)
@@ -138,11 +146,7 @@
         {
             if (IsTableStorage)
             {
-                if (content == null)
-                {
-                    request.Content = new StringContent(string.Empty, Encoding.UTF8, "application/atom+xml");
-                }
-                else
+                if (content != null)
                 {
                     request.Content = new StreamContent(content);
                     request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/atom+xml");

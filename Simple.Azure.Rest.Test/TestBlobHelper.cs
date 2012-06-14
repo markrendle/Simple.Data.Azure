@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace Simple.Azure.Rest.Test
 {
-    using NUnit.Framework;
+    using Xunit;
 
-    [TestFixture]
     public class TestBlobHelper
     {
-        [Test]
+        [Fact]
         public void ListsContainers()
         {
             var blobHelper = new BlobHelper();

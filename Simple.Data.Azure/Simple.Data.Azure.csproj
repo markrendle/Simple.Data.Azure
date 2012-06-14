@@ -57,7 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Simple.Azure\Simple.Azure.csproj">
-      <Project>{27AEF709-764B-415E-89F8-9EC65C473E37}</Project>
+      <Project>{27aef709-764b-415e-89f8-9ec65c473e37}</Project>
       <Name>Simple.Azure</Name>
     </ProjectReference>
     <ProjectReference Include="..\Simple.NExtLib\Simple.NExtLib.csproj">

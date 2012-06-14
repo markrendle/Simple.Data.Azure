@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple.Azure.Rest", "Simple
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple.Azure.Rest.Test", "Simple.Azure.Rest.Test\Simple.Azure.Rest.Test.csproj", "{CCFB9E6A-2148-4AE3-8C26-CF77395FA326}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple.Azure.Test", "Simple.Azure.Test\Simple.Azure.Test.csproj", "{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -186,6 +188,21 @@ Global
 		{CCFB9E6A-2148-4AE3-8C26-CF77395FA326}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{CCFB9E6A-2148-4AE3-8C26-CF77395FA326}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{CCFB9E6A-2148-4AE3-8C26-CF77395FA326}.Release|x86.ActiveCfg = Release|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Release-Mono|Any CPU.ActiveCfg = Release|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Release-Mono|Any CPU.Build.0 = Release|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Release-Mono|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Release-Mono|Mixed Platforms.Build.0 = Release|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Release-Mono|x86.ActiveCfg = Release|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D1E95C61-AFB9-4521-AC8F-3731A52A78D6}.Release|x86.ActiveCfg = Release|Any CPU
 		{D54389E2-DCDD-4891-BA4C-2EDA43A40782}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D54389E2-DCDD-4891-BA4C-2EDA43A40782}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D54389E2-DCDD-4891-BA4C-2EDA43A40782}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

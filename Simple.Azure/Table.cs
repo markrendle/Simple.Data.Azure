@@ -226,6 +226,23 @@
                                   });
         }
 
+        public Task<IEnumerable<Entity>> GetAllEntitiesAsync()
+        {
+            var request = _azureHelper.CreateTableRequest(_tableName, GET);
+
+            return new AsyncRequestRunner().TryRequest(request)
+                .ContinueWith(t =>
+                {
+                    Debug.WriteLine(t.Result.StatusCode);
+
+                    if (t.Result.StatusCode != HttpStatusCode.OK)
+                    {
+                        return Enumerable.Empty<Entity>();
+                    }
+                    return DataServicesHelper.GetEntities(t.Result.GetResponseStream());
+                });
+        }
+
         public Task<IDictionary<string, object>> InsertRowAsync(IDictionary<string, object> row)
         {
             ThrowIfMissing(row, "PartitionKey", "RowKey");
