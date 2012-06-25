@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Xml.Linq;
     using Simple.NExtLib;
     using System.Diagnostics;
@@ -43,6 +44,38 @@
             var reader = GetReader(element.Attribute("m", "type").ValueOrDefault());
 
             return new KeyValuePair<string, object>(element.Name.LocalName, reader(element.Value));
+        }
+
+        internal static EntityValue ReadValue(XElement element)
+        {
+            if (element == null) throw new ArgumentNullException("element");
+
+            var type = element.Attribute("m", "type").ValueOrDefault();
+            if (element.Attribute("m", "null").ValueOrDefault() == "true")
+            {
+                return new EntityValue(element.Name.LocalName, null, type);
+            }
+
+            var reader = GetReader(type);
+
+            return new EntityValue(element.Name.LocalName, reader(element.Value), (type ?? "Edm.String").Split('.')[1]);
+        }
+
+        internal static Entity ToEntity(this IEnumerable<EntityValue> source)
+        {
+            var entityValues = source.ToArray();
+            var names = new string[entityValues.Length];
+            var values = new object[entityValues.Length];
+            var types = new string[entityValues.Length];
+
+            for (int i = 0; i < entityValues.Length; i++)
+            {
+                names[i] = entityValues[i].Name;
+                values[i] = entityValues[i].Value;
+                types[i] = entityValues[i].Type;
+            }
+
+            return new Entity {Names = names, Values = values, Types = types};
         }
 
         public static void Write(XElement container, KeyValuePair<string, object> kvp)

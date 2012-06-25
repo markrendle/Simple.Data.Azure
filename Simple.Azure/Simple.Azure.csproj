@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="AsyncRequestRunner.cs" />
     <Compile Include="EdmType.cs" />
+    <Compile Include="Entity.cs" />
     <Compile Include="Helpers\Atom.cs" />
     <Compile Include="Helpers\AzureHelper.cs" />
     <Compile Include="Helpers\DataServicesHelper.cs" />

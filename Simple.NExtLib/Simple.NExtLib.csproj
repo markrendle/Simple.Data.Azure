@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\ConcurrentSet.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="Func.cs" />
     <Compile Include="IO\QuickIO.cs" />

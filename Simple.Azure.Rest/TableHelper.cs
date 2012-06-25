@@ -2,10 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Net.Http;
     using System.Text;
     using System.IO;
     using System.Net;
     using System.Reflection;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
 
     public class TableHelper : RESTHelper
@@ -26,6 +30,37 @@
 
         // List tables.
         // Return true on success, false if not found, throw exception on error.
+
+        public async Task<List<string>> ListTables()
+        {
+            var tables = new List<string>();
+
+            var request = CreateRequest(HttpMethod.Get, "Tables");
+            var client = new HttpClient();
+            var response = await client.SendAsync(request);
+
+            if ((int)response.StatusCode == 200)
+            {
+                var stream = await response.Content.ReadAsStreamAsync();
+                using (var reader = new StreamReader(stream))
+                {
+                    string result = reader.ReadToEnd();
+
+                    XNamespace ns = "http://www.w3.org/2005/Atom";
+                    XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
+
+                    XElement x = XElement.Parse(result, LoadOptions.SetBaseUri);
+
+                    tables.AddRange(x.Descendants(d + "TableName").Select(tableName => tableName.Value));
+                }
+            }
+            else
+            {
+                Debug.WriteLine(response.ReasonPhrase);
+            }
+
+            return tables;
+        }
 
         //public List<string> ListTables()
         //{
