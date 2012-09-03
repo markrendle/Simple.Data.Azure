@@ -34,7 +34,7 @@
             var uri = CreateRequestUrl(command);
             var request = WebRequest.Create(uri);
             request.Method = method;
-            request.ContentLength = (content ?? string.Empty).Length;
+            request.ContentLength = new UTF8Encoding(false).GetByteCount(content ?? string.Empty);
             request.Headers["x-ms-date"] = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
 
             if (method == "PUT" || method == "DELETE" || method == "MERGE")
